@@ -1,16 +1,17 @@
 var React = require('react');
-
-var backgroundStyle = {
-	backgroundImage: 'url("app/images/pattern.svg")'
-};
+var Search = require('./Search');
+var Header = require('./Header');
+var Style = require('../styles/Style');
 
 var Home = React.createClass({
 	render: function() {
 		return (
-			<div style={backgroundStyle}>
-				<h1>Enter a City and State</h1>
-				<input type="input" placeholder="St. George, Utah" />
-				<button type="submit">Get Weather</button>
+			<div>
+				<Header />
+				<div style={Style.home}>
+					<h1>Enter a City and State</h1>
+					<Search />
+				</div>
 			</div>
 		);
 	}
