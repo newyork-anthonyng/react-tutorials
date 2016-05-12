@@ -1,5 +1,5 @@
 var React = require('react');
-var Search = require('./Search');
+var SearchContainer = require('../containers/SearchContainer');
 var Style = require('../styles/Style');
 
 var Header = React.createClass({
@@ -7,7 +7,7 @@ var Header = React.createClass({
 		return (
 			<div style={Style.header}>
 				<h1>Clever Title</h1>
-				<Search />
+				<SearchContainer />
 			</div>
 		);
 	}
