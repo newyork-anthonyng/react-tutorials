@@ -3,6 +3,10 @@ var Search = require('../components/Search');
 var weatherHelper = require('../utils/weatherHelper');
 
 var PromptContainer = React.createClass({
+	contextTypes: {
+		router: React.PropTypes.object.isRequired
+	},
+
 	getInitialState: function() {
 		return {
 			city: ''
@@ -16,18 +20,18 @@ var PromptContainer = React.createClass({
 	},
 
 	getWeather: function() {
+		if(this.state.city !== '') {
+			this.context.router.push({
+				pathname: '/forecast/' + this.state.city
+			});
+		}
 
-		weatherHelper.getCurrentWeather(this.state.city)
+		/*
+		weatherHelper.getWeather(this.state.city)
 			.then(function(data) {
-				console.log('%c Current Weather', 'background-color: yellow;');
 				console.log(data);
 			});
-
-		weatherHelper.getFiveDayForecast(this.state.city)
-			.then(function(data) {
-				console.log('%c Five Day Forecast', 'background-color: yellow;');
-				console.log(data);
-			});
+		*/
 	},
 
 	render: function() {
