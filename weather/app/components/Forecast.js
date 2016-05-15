@@ -11,7 +11,11 @@ var Forecast = React.createClass({
 			var allWeather = this.props.weather[1]['list'];
 			var list = [];
 			for(var i = 0; i < allWeather.length; i++) {
-				list.push(<li key={i}>{allWeather[i]['description']}</li>);
+				list.push(
+					<ul key={i}>
+						<li key={i} onClick={this.props.onUserClick}><h2>{allWeather[i]['description']}</h2></li>
+					</ul>
+				);
 			}
 			return list;
 		}
@@ -29,7 +33,8 @@ var Forecast = React.createClass({
 
 	propTypes: {
 		isLoading: PropTypes.bool.isRequired,
-		weather: PropTypes.array.isRequired
+		weather: PropTypes.array.isRequired,
+		onUserClick: PropTypes.func.isRequired
 	}
 });
 

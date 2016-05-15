@@ -3,10 +3,21 @@ var Forecast = require('../components/Forecast');
 var weatherHelper = require('../utils/weatherHelper');
 
 var ForecastContainer = React.createClass({
+	contextTypes: {
+		router: React.PropTypes.object.isRequired
+	},
+
+	handleUserClick: function(e) {
+		this.context.router.push({
+			pathname: '/detail/' + this.state.city
+		});
+	},
+
 	getInitialState: function() {
 		return {
 			isLoading: true,
-			weather: []
+			weather: [],
+			city: ''
 		};
 	},
 
@@ -19,7 +30,8 @@ var ForecastContainer = React.createClass({
 				console.log(data);
 				this.setState({
 					isLoading: false,
-					weather: data
+					weather: data,
+					city: data[1]['city']
 				});
 
 			}.bind(this));
@@ -30,6 +42,7 @@ var ForecastContainer = React.createClass({
 			<Forecast
 				isLoading={this.state.isLoading}
 				weather={this.state.weather}
+				onUserClick={this.handleUserClick}
 			/>
 		);
 	}
