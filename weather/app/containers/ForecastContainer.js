@@ -18,7 +18,8 @@ var ForecastContainer = React.createClass({
 
 				console.log(data);
 				this.setState({
-					isLoading: false
+					isLoading: false,
+					weather: data
 				});
 
 			}.bind(this));
