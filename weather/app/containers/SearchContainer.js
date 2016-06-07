@@ -1,6 +1,5 @@
 var React = require('react');
 var Search = require('../components/Search');
-var weatherHelper = require('../utils/weatherHelper');
 
 var PromptContainer = React.createClass({
 	contextTypes: {
@@ -22,16 +21,12 @@ var PromptContainer = React.createClass({
 	getWeather: function() {
 		if(this.state.city !== '') {
 			this.context.router.push({
-				pathname: '/forecast/' + this.state.city
+				pathname: '/forecast/' + this.state.city,
+				state: {
+					city: this.state.city
+				}
 			});
 		}
-
-		/*
-		weatherHelper.getWeather(this.state.city)
-			.then(function(data) {
-				console.log(data);
-			});
-		*/
 	},
 
 	render: function() {

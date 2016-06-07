@@ -1,7 +1,8 @@
 var Style = {
 	header: {
 		backgroundColor: 'orange',
-		color: 'white'
+		color: 'white',
+		height: '90px'
 	},
 	home: {
 		backgroundImage: 'url("app/images/pattern.svg")',

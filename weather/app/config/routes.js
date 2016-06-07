@@ -6,13 +6,15 @@ var hashHistory = ReactRouter.hashHistory;
 var IndexRoute = ReactRouter.IndexRoute;
 var Main = require('../components/Main');
 var Home = require('../components/Home');
-var Forecast = require('../components/Forecast');
+var ForecastContainer = require('../containers/ForecastContainer');
+var Detail = require('../components/Detail');
 
 var routes = (
 	<Router history={hashHistory}>
 		<Route path='/' component={Main}>
 			<IndexRoute component={Home} />
-			<Route path='forecast/:city' component={Forecast} />
+			<Route path='forecast/:city' component={ForecastContainer} />
+			<Route path='detail/:city' component={Detail} />
 		</Route>
 	</Router>
 );
