@@ -28,11 +28,25 @@
 					this.setState({tasks: allTasks});
 				},
 
+				handleTaskClick: function(clickedTask) {
+					var updatedTasks = this.state.tasks;
+
+					updatedTasks = updatedTasks.map(function(task) {
+						if(task['name'] === clickedTask) {
+							task['completed'] = !task['completed'];
+						}
+
+						return task;
+					});
+
+					this.setState({tasks: updatedTasks});
+				},
+
 				render: function() {
 					return (
 						<div>
 							<h1>Todo App</h1>
-							<TaskList tasks={this.state.tasks} />
+							<TaskList tasks={this.state.tasks} onTaskClick={this.handleTaskClick} />
 							<TaskForm onTaskSubmit={this.handleTaskSubmit} />
 						</div>
 					);
@@ -40,12 +54,17 @@
 			});
 
 			var TaskList = React.createClass({
+				handleClick: function(name) {
+					this.props.onTaskClick(name);
+				},
+
 				render: function() {
 					var taskNodes = this.props.tasks.map(function(task) {
+
 						return (
-							<Task name={task.name} key={task.id} completed={task.completed} />
+							<Task name={task.name} key={task.id} completed={task.completed} onTaskClick={this.handleClick} />
 						);
-					});
+					}.bind(this));
 					return (
 						<div className="taskList">
 							{taskNodes}
@@ -55,10 +74,14 @@
 			});
 
 			var Task = React.createClass({
+				handleClick: function() {
+					this.props.onTaskClick(this.props.name);
+				},
+
 				render: function() {
 					var className = 'comment ' + (this.props.completed ? 'completed' : '');
 					return (
-						<div className={className}>
+						<div className={className} onClick={this.handleClick} >
 							{this.props.name}
 						</div>
 					);
