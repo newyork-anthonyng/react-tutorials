@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Hello React</title>
+		<script src="https://fb.me/react-15.2.0.js"></script>
+		<script src="https://fb.me/react-dom-15.2.0.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+	</head>
+	<body>
+		<div id="example"></div>
+		<div id="example2"></div>
+		<div id="example3"></div>
+		<div id="example4"></div>
+		<div id="example5"></div>
+		<script type="text/babel">
+
+		// ** Your code goes here! **
+		var HelloWorld = React.createClass({
+			render: function() {
+				return (
+					<p>
+						Hello, <input type="text" placeholder="Your name here" />!
+						It is {this.props.date.toTimeString()}
+					</p>
+				);
+			}
+		});
+
+		setInterval(function() {
+			ReactDOM.render(
+				<HelloWorld date={new Date()} />,
+				document.getElementById('example')
+			);
+		}, 500);
+
+		/*class LikeButton extends React.Component {
+			constructor() {
+				super();
+				this.state = {
+					liked: false
+				};
+				this.handleClick = this.handleClick.bind(this);
+			}
+			handleClick() {
+				this.setState({liked: !this.state.liked});
+			}
+			render() {
+				const text = this.state.liked ? 'like' : 'haven\'t liked';
+				return (
+					<div onClick={this.handleClick}>
+						You {text} this. Click to toggle.
+					</div>
+				);
+			}
+		}*/
+		var LikeButton = React.createClass({
+			getInitialState: function() {
+				return { liked: false };
+			},
+
+			handleClick: function() {
+				this.setState({ liked: !this.state.liked });
+			},
+
+			render: function() {
+				const text = this.state.liked ? 'like' : 'haven\'t liked';
+				return (
+					<div onClick={this.handleClick}>
+						You {text} this. Click to toggle.
+					</div>
+				);
+			}
+		});
+
+		ReactDOM.render(
+			<LikeButton />,
+			document.getElementById('example2')
+		);
+
+		var Avatar = React.createClass({
+			render: function() {
+				return (
+					<div>
+						<PagePic pagename={this.props.pagename} />
+						<PageLink pagename={this.props.pagename} />
+					</div>
+				);
+			}
+		});
+
+		var PagePic = React.createClass({
+			render: function() {
+				return (
+					<img src={'https://graph.facebook.com/' + this.props.pagename + '/picture'} />
+				);
+			}
+		});
+
+		var PageLink = React.createClass({
+			render: function() {
+				return (
+					<a href={'https://www.facebook.com/' + this.props.pagename}>
+						{this.props.pagename}
+					</a>
+				);
+			}
+		});
+
+		ReactDOM.render(
+			<Avatar pagename="Engineering" />,
+			document.getElementById('example3')
+		);
+
+		var SetIntervalMixin = {
+			componentWillMount: function() {
+				this.intervals = [];
+			},
+
+			setInterval: function() {
+				this.intervals.push(setInterval.apply(null, arguments));
+			},
+
+			componentWillUnMount: function() {
+				this.intervals.forEach(clearInterval);
+			}
+		};
+
+		var TickTock = React.createClass({
+			mixins: [SetIntervalMixin],
+
+			getInitialState: function() {
+				return {seconds: 0};
+			},
+
+			componentDidMount: function() {
+				this.setInterval(this.tick, 1000);
+			},
+
+			tick: function() {
+				this.setState({seconds: this.state.seconds + 1});
+			},
+
+			render: function() {
+				return (
+					<p>
+						React has been running for {this.state.seconds} seconds.
+					</p>
+				);
+			}
+		});
+
+		ReactDOM.render(
+			<TickTock />,
+			document.getElementById('example4')
+		);
+
+		var Tweet = React.createClass({
+			getInitialState: function() {
+				return {value: 'Hello!'};
+			},
+
+			handleChange: function(e) {
+				this.setState({value: e.target.value.substr(0, 140)});
+			},
+
+			render: function() {
+				var text = this.state.value.length === 1 ? 'character' : 'characters';
+				return (
+					<div>
+						<span>{this.state.value.length} {text} typed</span>
+						<input
+							type="text"
+							value={this.state.value}
+							onChange={this.handleChange}
+						/>
+					</div>
+				);
+			}
+		});
+
+		ReactDOM.render(
+			<Tweet />,
+			document.getElementById('example5')
+		);
+
+		</script>
+	</body>
+</html>
