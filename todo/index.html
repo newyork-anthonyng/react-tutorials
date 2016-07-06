@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>To Do</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.0/react.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.0/react-dom.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.16/browser.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+		<link href="./style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="content"></div>
+
+		<script type="text/babel">
+			var TodoApp = React.createClass({
+				getInitialState: function() {
+					return {tasks: [{id: 1, name: 'Mow lawn', completed: true}, {id: 2, name: 'Program', completed: false}]};
+				},
+
+				handleTaskSubmit: function(task) {
+					var newTask = {
+						id: Date.now(),
+						name: task.name,
+					};
+					var allTasks = this.state.tasks;
+					allTasks.push(newTask);
+					this.setState({tasks: allTasks});
+				},
+
+				render: function() {
+					return (
+						<div>
+							<h1>Todo App</h1>
+							<TaskList tasks={this.state.tasks} />
+							<TaskForm onTaskSubmit={this.handleTaskSubmit} />
+						</div>
+					);
+				}
+			});
+
+			var TaskList = React.createClass({
+				render: function() {
+					var taskNodes = this.props.tasks.map(function(task) {
+						return (
+							<Task name={task.name} key={task.id} completed={task.completed} />
+						);
+					});
+					return (
+						<div className="taskList">
+							{taskNodes}
+						</div>
+					);
+				}
+			});
+
+			var Task = React.createClass({
+				render: function() {
+					var className = 'comment ' + (this.props.completed ? 'completed' : '');
+					return (
+						<div className={className}>
+							{this.props.name}
+						</div>
+					);
+				}
+			});
+
+			var TaskForm = React.createClass({
+				getInitialState: function() {
+					return {name: ''};
+				},
+
+				handleTextChange: function(e) {
+					this.setState({name: e.target.value});
+				},
+
+				handleSubmit: function(e) {
+					e.preventDefault();
+					var name = this.state.name.trim();
+					if(!name) return;
+
+					this.props.onTaskSubmit({name: name});
+					this.setState({name: ''});
+				},
+
+				render: function() {
+					return (
+						<form className="taskForm" onSubmit={this.handleSubmit}>
+							<input
+								type="text"
+								placeholder="New task"
+								value={this.state.name}
+								onChange={this.handleTextChange}
+							/>
+							<input type="submit" value="Post" />
+						</form>
+					);
+				}
+			});
+
+			ReactDOM.render(
+				<TodoApp />,
+				document.getElementById('content')
+			);
+		</script>
+	</body>
+</html>
