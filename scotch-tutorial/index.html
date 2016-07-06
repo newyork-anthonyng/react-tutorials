@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Scotch Tutorials</title>
+	<meta charset="UTF-8">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.0/react.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.0/react-dom.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+</head>
+<body>
+	<div id="helloWorld"></div>
+	<div id="component"></div>
+	<div id="counter"></div>
+	<div id="filter"></div>
+
+	<script type="text/babel">
+		ReactDOM.render(
+			<h1>Hello, world!</h1>,
+			document.getElementById('helloWorld')
+		);
+
+		var MyComponent = React.createClass({
+			getInitialState: function() {
+				return { count: 5 };
+			},
+
+			render: function() {
+				return (
+					<h1>{this.state.count}</h1>
+				)
+			}
+		});
+
+		ReactDOM.render(
+			<MyComponent />,
+			document.getElementById('component')
+		);
+
+		var Counter = React.createClass({
+			incrementCount: function() {
+				this.setState({
+					count: this.state.count + 1
+				});
+			},
+
+			getInitialState: function() {
+				return { count: 0 };
+			},
+
+			render: function() {
+				return (
+					<div>
+						<h1>Count: {this.state.count}</h1>
+						<button type="button" onClick={this.incrementCount}>Increment</button>
+					</div>
+				);
+			}
+		});
+
+		ReactDOM.render(
+			<Counter />,
+			document.getElementById('counter')
+		);
+
+		var FilteredList = React.createClass({
+			filterList: function(e) {
+				var updatedList = this.state.initialItems;
+				updatedList = updatedList.filter(function(item) {
+					var isMatch = item.toLowerCase().search(
+						e.target.value.toLowerCase()
+					) !== -1;
+
+					return isMatch;
+				});
+
+				this.setState({ items: updatedList });
+			},
+
+			getInitialState: function() {
+				return {
+					initialItems: [
+						'Apples',
+						'Broccoli',
+						'Chicken',
+						'Duck',
+						'Eggs',
+						'Fish',
+						'Granola',
+						'Hash Browns'
+					],
+					items: []
+				};
+			},
+
+			componentWillMount: function() {
+				this.setState({ items: this.state.initialItems });
+			},
+
+			render: function() {
+				return (
+					<div className="filter-list">
+						<input
+							type="text"
+							placeholder="Search"
+							onChange={this.filterList}
+						/>
+						<List items={this.state.items} />
+					</div>
+				);
+			}
+		});
+
+		var List = React.createClass({
+			render: function() {
+				var listNodes = this.props.items.map(function(item) {
+					return (
+						<Item key={item} name={item} />
+					);
+				});
+				return (
+					<ul>
+						{listNodes}
+					</ul>
+				);
+			}
+		});
+
+		var Item = React.createClass({
+			render: function() {
+				return (
+					<li>{this.props.name}</li>
+				);
+			}
+		});
+
+		ReactDOM.render(
+			<FilteredList />,
+			document.getElementById('filter')
+		);
+	</script>
+</body>
+</html>
