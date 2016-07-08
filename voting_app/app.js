@@ -1,7 +1,8 @@
 const ProductList = React.createClass({
 	getInitialState: function() {
 		return {
-			products: []
+			products: [],
+			sortAscending: false
 		};
 	},
 
@@ -11,7 +12,7 @@ const ProductList = React.createClass({
 
 	updateState: function() {
 		const products = Data.sort((a, b) => {
-			return b.votes - a.votes;
+			return this.state.sortAscending ? (a.votes - b.votes) : (b.votes - a.votes);
 		});
 
 		this.setState({ products: products });
@@ -28,9 +29,9 @@ const ProductList = React.createClass({
 	},
 
 	handleToggleSort: function() {
-		//const newSort = this.state.sortAscending;
-		//this.setState({ sortAscending: !newSort });
-		//this.updateState();
+		this.setState({ sortAscending: !this.state.sortAscending }, function() {
+			this.updateState();
+		});
 	},
 
 	render: function() {
@@ -50,10 +51,11 @@ const ProductList = React.createClass({
 			);
 		});
 
-		const buttonText = this.state.sortAscending ? 'Ascending' : 'Descending';
+		const labelText = this.state.sortAscending ? 'Shown Ascending' : 'Shown Descending';
 		return (
 			<div className='ui items'>
-				<button onClick={this.handleToggleSort}>{buttonText}</button>
+				<p>{labelText}</p>
+				<button onClick={this.handleToggleSort}>Toggle Sort</button>
 				{products}
 			</div>
 		);
