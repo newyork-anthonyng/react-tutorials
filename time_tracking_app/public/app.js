@@ -62,6 +62,48 @@ const TimersDashboard = React.createClass({
 		this.setState({ timers: newTimers });
 	},
 
+	handleStartClick: function(timerId) {
+		this.startTimer(timerId);
+	},
+
+	handleStopClick: function(timerId) {
+		this.stopTimer(timerId);
+	},
+
+	startTimer: function(timerId) {
+		const now = Date.now();
+
+		const newTimers = this.state.timers.map((timer) => {
+			if(timer.id === timerId) {
+				return Object.assign({}, timer, {
+					runningSince: now
+				});
+			} else {
+				return timer;
+			}
+		});
+
+		this.setState({ timers: newTimers });
+	},
+
+	stopTimer: function(timerId) {
+		const now = Date.now();
+
+		const newTimers = this.state.timers.map((timer) => {
+			if(timer.id === timerId) {
+				const lastElapsed = now - timer.runningSince;
+				return Object.assign({}, timer, {
+					elapsed: timer.elapsed + lastElapsed,
+					runningSince: null
+				});
+			} else {
+				return timer;
+			}
+		});
+
+		this.setState({ timers: newTimers });
+	},
+
 	render: function() {
 		return (
 			<div className='ui three column centered grid'>
@@ -70,6 +112,8 @@ const TimersDashboard = React.createClass({
 						timers={this.state.timers}
 						onFormSubmit={this.handleEditFormSubmit}
 						onTrashClick={this.handleTrashClick}
+						onStartClick={this.handleStartClick}
+						onStopClick={this.handleStopClick}
 					/>
 					<ToggleableTimerForm
 						onFormSubmit={this.handleCreateFormSubmit}
@@ -93,6 +137,8 @@ const EditableTimerList = React.createClass({
 					runningSince={timer.runningSince}
 					onFormSubmit={this.props.onFormSubmit}
 					onTrashClick={this.props.onTrashClick}
+					onStartClick={this.props.onStartClick}
+					onStopClick={this.props.onStopClick}
 				/>
 			);
 		});
@@ -156,6 +202,8 @@ const EditableTimer = React.createClass({
 					runningSince={this.props.runningSince}
 					onEditClick={this.handleEditClick}
 					onTrashClick={this.props.onTrashClick}
+					onStartClick={this.props.onStartClick}
+					onStopClick={this.props.onStopClick}
 				/>
 			);
 		}
@@ -163,7 +211,18 @@ const EditableTimer = React.createClass({
 });
 
 const TimerForm = React.createClass({
+	getInitialState: function() {
+		return { hasErrors: false };
+	},
+
 	handleSubmit: function() {
+		const blankFields = this.refs.title.value === '' || this.refs.project.value === '';
+		if(blankFields) {
+			this.setState({ hasErrors: true });
+			return;
+		}
+
+		this.setState({ hasErrors: false });
 		this.props.onFormSubmit({
 			id: this.props.id,
 			title: this.refs.title.value,
@@ -173,9 +232,17 @@ const TimerForm = React.createClass({
 
 	render: function() {
 		const submitText = this.props.id ? 'Update' : 'Create';
+		const errorStyles = {
+			display: this.state.hasErrors ? 'block' : 'none'
+		};
+
 		return (
 			<div className='ui centered card'>
 				<div className='content'>
+					<div className='ui error message' style={errorStyles}>
+						<div className='header'>Missing Information</div>
+						<p>Title and Project fields can not be blank.</p>
+					</div>
 					<div className='ui form'>
 						<div className='field'>
 							<label>Title</label>
@@ -250,15 +317,50 @@ const ToggleableTimerForm = React.createClass({
 });
 
 const Timer = React.createClass({
+	getInitialState: function() {
+		return { hover: false };
+	},
+
+	componentDidMount: function() {
+		this.forceUpdateInterval = setInterval(() => this.forceUpdate(), 50);
+	},
+
+	componentWillUnmount: function() {
+		clearInterval(this.forceUpdateInterval);
+	},
+
 	handleTrashClick: function() {
 		this.props.onTrashClick(this.props.id);
 	},
 
+	handleStartClick: function() {
+		this.props.onStartClick(this.props.id);
+	},
+
+	handleStopClick: function() {
+		this.props.onStopClick(this.props.id);
+	},
+
+	handleMouseOver: function() {
+		this.setState({ hover: true });
+	},
+
+	handleMouseLeave: function() {
+		this.setState({ hover: false });
+	},
+
 	render: function() {
-		const elapsedString = helpers.renderElapsedString(this.props.elapsed);
+		const elapsedString = helpers.renderElapsedString(this.props.elapsed, this.props.runningSince);
+		const buttonStyles = {
+			visibility: this.state.hover ? 'visible' : 'hidden'
+		};
 
 		return (
-			<div className='ui centered card'>
+			<div
+				className='ui centered card'
+				onMouseEnter={this.handleMouseOver}
+				onMouseLeave={this.handleMouseLeave}
+			>
 				<div className='content'>
 					<div className='header'>
 						{this.props.title}
@@ -271,7 +373,7 @@ const Timer = React.createClass({
 							{elapsedString}
 						</h2>
 					</div>
-					<div className='extra content'>
+					<div className='extra content' style={buttonStyles}>
 						<span
 							className='right floated edit icon'
 							onClick={this.props.onEditClick}
@@ -286,11 +388,37 @@ const Timer = React.createClass({
 						</span>
 					</div>
 				</div>
-				<div className='ui bottom attached blue basic button'>
-					Start
-				</div>
+				<TimerActionButton
+					timerIsRunning={!!this.props.runningSince}
+					onStartClick={this.handleStartClick}
+					onStopClick={this.handleStopClick}
+				/>
 			</div>
 		);
+	}
+});
+
+const TimerActionButton = React.createClass({
+	render: function() {
+		if(this.props.timerIsRunning) {
+			return (
+				<div
+					className='ui bottom attached red basic button'
+					onClick={this.props.onStopClick}
+				>
+					Stop
+				</div>
+			);
+		} else {
+			return (
+				<div
+					className='ui bottom attached green basic button'
+					onClick={this.props.onStartClick}
+				>
+					Start
+				</div>
+			);
+		}
 	}
 });
 
