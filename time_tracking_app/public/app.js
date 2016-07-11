@@ -1,23 +1,23 @@
 const TimersDashboard = React.createClass({
 	getInitialState: function() {
 		return {
-			timers: [
-				{
-					title: 'Practice squat',
-					project: 'Gym Chores',
-					id: uuid.v4(),
-					elapsed: 5456099,
-					runningSince: Date.now()
-				},
-				{
-					title: 'Bake squash',
-					project: 'Kitchen Chores',
-					id: uuid.v4(),
-					elapsed: 1273998,
-					runningSince: null
-				}
-			]
+			timers: [],
+			serverErrors: []
 		};
+	},
+
+	componentDidMount: function() {
+		this.loadTimersFromServer();
+		setInterval(this.loadTimersFromServer, 5000);
+	},
+
+	loadTimersFromServer: function() {
+		client.getTimers({
+			success: (data) => {
+				this.setState({ timers: data });
+			},
+			error: this.handleServerError
+		});
 	},
 
 	handleCreateFormSubmit: function(timer) {
@@ -38,12 +38,28 @@ const TimersDashboard = React.createClass({
 		});
 
 		this.setState({ timers: newTimers });
+
+		client.deleteTimer({
+			data: { id: timerId },
+			error: this.handleServerError
+		});
+	},
+
+	handleServerError: function(error) {
+		const newErrors = this.state.serverErrors += error;
+
+		this.setState({ serverErrors: newErrors });
 	},
 
 	createTimer: function(timer) {
 		const t = helpers.newTimer(timer);
 		this.setState({
 			timers: this.state.timers.concat(t)
+		});
+
+		client.createTimer({
+			data: t,
+			error: this.handleServerError
 		});
 	},
 
@@ -60,6 +76,11 @@ const TimersDashboard = React.createClass({
 		});
 
 		this.setState({ timers: newTimers });
+
+		client.updateTimer({
+			data: attrs,
+			error: this.handleServerError
+		});
 	},
 
 	handleStartClick: function(timerId) {
@@ -84,6 +105,11 @@ const TimersDashboard = React.createClass({
 		});
 
 		this.setState({ timers: newTimers });
+
+		client.startTimer({
+			data: { id: timerId, start: now },
+			error: this.handleServerError
+		});
 	},
 
 	stopTimer: function(timerId) {
@@ -102,12 +128,29 @@ const TimersDashboard = React.createClass({
 		});
 
 		this.setState({ timers: newTimers });
+
+		client.stopTimer({
+			data: { id: timerId, stop: now },
+			error: this.handleServerError
+		});
 	},
 
 	render: function() {
+		const errorList = this.state.serverErrors.map((error) => {
+			return (
+				<p key={error}>{error}</p>
+			);
+		});
+		const errorStyle = {
+			display: this.state.serverErrors.length > 0 ? 'block' : 'none'
+		};
+
 		return (
 			<div className='ui three column centered grid'>
 				<div className='column'>
+					<div className='ui segment' style={errorStyle}>
+						{errorList}
+					</div>
 					<EditableTimerList
 						timers={this.state.timers}
 						onFormSubmit={this.handleEditFormSubmit}
