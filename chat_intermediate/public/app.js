@@ -1,6 +1,6 @@
 const reducer = Redux.combineReducers({
-	activeThreadId: activeThreadIdReducer,
-	threads: threadsReducer
+  activeThreadId: activeThreadIdReducer,
+  threads: threadsReducer,
 });
 
 function activeThreadIdReducer(state = '1-fca2', action) {
@@ -89,120 +89,169 @@ function messagesReducer(state = [], action) {
 
 const store = Redux.createStore(reducer);
 
-const App = React.createClass({
-  componentDidMount: function () {
-    store.subscribe(() => this.forceUpdate());
-  },
-  render: function () {
-		const state = store.getState();
-		const activeThreadId = state.activeThreadId;
-		const threads = state.threads;
-		const activeThread = threads.find((t) => t.id === activeThreadId);
-		const tabs = threads.map(t => (
-			{
-				title: t.title,
-				active: t.id === activeThreadId,
-				id: t.id
-			}
-		));
+const App = () => (
+	<div className='ui segment'>
+		<ThreadTabs />
+		<ThreadDisplay />
+	</div>
+);
 
-    return (
-      <div className='ui segment'>
-				<ThreadTabs tabs={tabs} />
-        <Thread thread={activeThread} />
-      </div>
-    );
-  },
-});
-
-const ThreadTabs = React.createClass({
-	handleClick: function(id) {
-		store.dispatch({
-			type: 'OPEN_THREAD',
-			id: id
-		});
-	},
-
-	render: function() {
-		const tabs = this.props.tabs.map((tab, index) => (
-			<div
-				key={index}
-				className={tab.active ? 'active item' : 'item'}
-				onClick={() => this.handleClick(tab.id)}
-			>
-				{tab.title}
-			</div>
-		));
-
-		return (
-			<div className='ui top attached tabular menu'>
-				{tabs}
-			</div>
-		);
-	}
-});
-
-const MessageInput = React.createClass({
-  handleSubmit: function () {
-    store.dispatch({
-      type: 'ADD_MESSAGE',
-			text: this.refs.messageInput.value,
-			threadId: this.props.threadId
-    });
-    this.refs.messageInput.value = '';
-  },
-  render: function () {
-    return (
-      <div className='ui input'>
-        <input
-          ref='messageInput'
-          type='text'
-        >
-        </input>
-        <button
-          onClick={this.handleSubmit}
-          className='ui primary button'
-          type='submit'
-        >
-          Submit
-        </button>
-       </div>
-    );
-  },
-});
-
-const Thread = React.createClass({
-  handleClick: function (id) {
-    store.dispatch({
-      type: 'DELETE_MESSAGE',
-      id: id,
-    });
-  },
-  render: function () {
-    const messages = this.props.thread.messages.map((message, index) => (
-      <div
-        className='comment'
-        key={index}
-        onClick={() => this.handleClick(message.id)}
-      >
-				<div className='text'>
-					{message.text}
-					<span className='metadata'>@{message.timestamp}</span>
+const Tabs = (props) => (
+	<div className='ui top attached tabular menu'>
+		{
+			props.tabs.map((tab, index) => (
+				<div
+					key={index}
+					className={tab.active ? 'active item' : 'item'}
+					onClick={() => props.onClick(tab.id)}
+				>
+					{tab.title}
 				</div>
-      </div>
-    ));
-    return (
-      <div className='ui center aligned basic segment'>
-        <div className='ui comments'>
-          {messages}
-        </div>
-				<MessageInput threadId={this.props.thread.id} />
-      </div>
-    );
-  },
-});
+			))
+		}
+	</div>
+);
+
+const mapStateToTabsProps = (state) => {
+	const tabs = state.threads.map(t => (
+		{
+			title: t.title,
+			active: t.id === state.activeThreadId,
+			id: t.id
+		}
+	));
+
+	return {
+		tabs
+	};
+};
+
+const mapDispatchToTabsProps = (dispatch) => (
+	{
+		onClick: (id) => (
+			dispatch(openThread(id))
+		)
+	}
+);
+
+const ThreadTabs = ReactRedux.connect(
+	mapStateToTabsProps,
+	mapDispatchToTabsProps
+)(Tabs);
+
+const TextFieldSubmit = (props) => {
+	let input;
+
+	return (
+		<div className='ui input'>
+			<input
+				ref={node => input = node}
+				type='text'
+			>
+			</input>
+			<button
+				onClick={() => {
+					props.onSubmit(input.value);
+					input.value = '';
+				}}
+				className='ui primary button'
+				type='submit'
+			>
+				Submit
+			</button>
+		</div>
+	);
+};
+
+const MessageList = (props) => (
+	<div className='ui comments'>
+		{
+			props.messages.map((m, index) => (
+				<div
+					className='comment'
+					key={index}
+					onClick={() => props.onClick(m.id)}
+				>
+					<div className='text'>
+						{m.text}
+						<span className='metadata'>@{m.timestamp}</span>
+					</div>
+				</div>
+			))
+		}
+	</div>
+);
+
+const Thread = (props) => (
+	<div className='ui center aligned basic segment'>
+		<MessageList
+			messages={props.thread.messages}
+			onClick={props.onMessageClick}
+		/>
+		<TextFieldSubmit
+			onSubmit={props.onMessageSubmit}
+		/>
+	</div>
+);
+
+const mapStateToThreadProps = (state) => (
+	{
+		thread: state.threads.find(
+			t => t.id === state.activeThreadId
+		)
+	}
+);
+
+function deleteMessage(id) {
+	return {
+		type: 'DELETE_MESSAGE',
+		id: id
+	};
+}
+
+function addMessage(text, threadId) {
+	return {
+		type: 'ADD_MESSAGE',
+		text: text,
+		threadId: threadId
+	};
+}
+
+function openThread(id) {
+	return {
+		type: 'OPEN_THREAD',
+		id: id
+	};
+}
+
+const mapDispatchToThreadProps = (dispatch) => (
+	{
+		onMessageClick: (id) => (
+			dispatch(deleteMessage(id))
+		),
+		dispatch: dispatch
+	}
+);
+
+const mergeThreadProps = (stateProps, dispatchProps) => (
+	{
+		...stateProps,
+		...dispatchProps,
+		onMessageSubmit: (text) => (
+			dispatchProps.dispatch(addMessage(text, stateProps.thread.id))
+		)
+	}
+);
+
+const ThreadDisplay = ReactRedux.connect(
+	mapStateToThreadProps,
+	mapDispatchToThreadProps,
+	mergeThreadProps
+)(Thread);
 
 ReactDOM.render(
-  <App />,
+	<ReactRedux.Provider store={store}>
+		<App />
+	</ReactRedux.Provider>,
   document.getElementById('content')
 );
