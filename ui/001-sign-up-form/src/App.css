@@ -1,0 +1,119 @@
+body {
+	background-image: url(https://unsplash.it/1400/795);
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	overflow: hidden;
+	height: 100vh;
+}
+
+.App {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	width: 100vw;
+}
+
+.Modal {
+	background: #3E363F;
+	border-radius: 2px;
+	padding: 20px;
+	width: 200px;
+}
+
+.Input {
+	display: flex;
+	flex-direction: row-reverse;
+	border-bottom: 1px solid rgba(255, 252, 232, 0.1);
+	padding-bottom: 3px;
+	margin-bottom: 5px;
+}
+
+.Input input {
+	outline: none;
+	border: 0;
+	color: #FFFCE8;
+	background: transparent;
+	flex: 1 0 auto;
+	font-size: 14px;
+	font-weight: 300;
+}
+
+.Input input: focus ~ label {
+	opacity: 1;
+}
+
+.Input input[type='text'] ~ label::before {
+	content: "😁       ";
+}
+
+.Input input[type='email'] ~ label::before {
+	content: "📧     ";
+}
+
+.Input input[type='password'] ~ label::before {
+	content: "🛂          ";
+}
+
+.Input label {
+	font-size: 13px;
+	opacity: .1;
+	transition: opacity .5s ease;
+}
+
+.Input label::before {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 30px;
+	width: 30px;
+}
+
+button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #DD403A;
+	border: 0;
+	border-radius: 3px;
+	color: white;
+	font-size: 13px;
+	font-weight: 500;
+	margin-top: 20px;
+	outline: none;
+	padding: 10px;
+	text-transform: uppercase;
+	width: 100%;
+	transition: all 0.2s ease;
+}
+
+button:hover {
+	transform: scale(1.02);
+}
+
+button:active {
+	transform: scale(0.99);
+}
+
+.example-enter {
+	margin-top: 30px;
+	opacity: .01;
+}
+
+.example-enter.example-enter-active {
+	margin-top: 0px;
+	opacity: 1;
+	transition: opacity .5s ease, margin .5s ease;
+}
+
+.example-leave {
+	margin-top: 0px;
+	opacity: 1;
+}
+
+.example-leave.example-leave-active {
+	margin-top: -30px;
+	opacity: .01;
+	transition: opacity .3s ease, margin .5s ease;
+}
