@@ -7,7 +7,7 @@ class Input extends React.Component {
 		return (
 			<div className="Input">
 				<input
-					id={this.props.name}
+					id={this.props.id}
 					autoComplete="false"
 					required
 					type={this.props.type}
