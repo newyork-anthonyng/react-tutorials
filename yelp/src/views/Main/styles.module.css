@@ -1,0 +1,13 @@
+.wrapper {
+	overflowy-y: scroll;
+	display: flex;
+	margin: 0;
+	padding: 15px;
+	height: 100vh;
+}
+
+.content {
+	position: relative;
+	flex: 2;
+	top: 80px;
+}
